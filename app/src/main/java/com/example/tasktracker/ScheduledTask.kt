@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 data class ScheduledTask(
     val title: String,
     val description: String,
-    val dateTime: String,
+    val dueTime: String,
+    val creationTime: String,
     @PrimaryKey(autoGenerate = true) val id: Int = 0
 )

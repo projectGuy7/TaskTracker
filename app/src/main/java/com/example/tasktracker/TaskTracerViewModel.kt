@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -50,14 +51,14 @@ class TaskTracerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
                     return;
                 }
 
-                val currentTime = LocalDateTime.now()
+                val creationTime = LocalTime.now()
 
                 try {
-                    val dateTime = LocalDateTime.parse(
+                    val dueTime = LocalTime.parse(
                         _state.value.scheduledTaskDateTime,
-                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                        DateTimeFormatter.ofPattern("HH:mm:ss")
                     )
-                    if(dateTime.isBefore(currentTime)) {
+                    if(dueTime.isBefore(creationTime)) {
                         return;
                     }
                 } catch(e: DateTimeParseException) {
@@ -69,7 +70,8 @@ class TaskTracerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
                     ScheduledTask(
                         title = scheduledTaskTitle,
                         description = scheduledTaskDescription,
-                        dateTime = scheduledTaskDateTime
+                        dueTime = scheduledTaskDateTime,
+                        creationTime = creationTime.toString()
                     )
                 }
 
