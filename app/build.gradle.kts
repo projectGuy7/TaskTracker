@@ -49,6 +49,9 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
     //
 
+    // Notification permission
+    implementation("com.google.accompanist:accompanist-permissions:0.31.1-alpha")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

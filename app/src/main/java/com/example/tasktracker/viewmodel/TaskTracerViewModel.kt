@@ -1,23 +1,24 @@
-package com.example.tasktracker
+package com.example.tasktracker.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tasktracker.roomdatabase.ScheduledTask
+import com.example.tasktracker.roomdatabase.ScheduledTaskDao
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 class TaskTracerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
     private val _searchBarContent = MutableStateFlow("")
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val _scheduledTasks = _searchBarContent
         .flatMapLatest {
             dao.getScheduledTasksByTaskName(it)
@@ -30,7 +31,6 @@ class TaskTracerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
             scheduledTasksList = scheduledTasks
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), TaskTracerState())
-
 
     fun onEvent(event: TaskTracerEvent) {
         when(event) {
@@ -46,32 +46,26 @@ class TaskTracerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
             }
             TaskTracerEvent.SaveScheduledTask -> {
                 if(_state.value.run {
-                    scheduledTaskTitle.isBlank() || scheduledTaskDescription.isBlank() || scheduledTaskDateTime.isBlank()
+                    scheduledTaskTitle.isBlank() || scheduledTaskDescription.isBlank() || scheduledTaskTime.isBlank()
                 }) {
                     return;
                 }
 
-                val creationTime = LocalTime.now()
-
+                val dueTime: LocalTime
                 try {
-                    val dueTime = LocalTime.parse(
-                        _state.value.scheduledTaskDateTime,
-                        DateTimeFormatter.ofPattern("HH:mm:ss")
+                    dueTime = LocalTime.parse(
+                        _state.value.scheduledTaskTime,
+                        DateTimeFormatter.ofPattern("HH:mm")
                     )
-                    if(dueTime.isBefore(creationTime)) {
-                        return;
-                    }
                 } catch(e: DateTimeParseException) {
                     return;
-                    // TODO : Maybe snackbar
                 }
 
                 val scheduledTask = _state.value.run {
                     ScheduledTask(
                         title = scheduledTaskTitle,
                         description = scheduledTaskDescription,
-                        dueTime = scheduledTaskDateTime,
-                        creationTime = creationTime.toString()
+                        dueTime = dueTime
                     )
                 }
 
@@ -84,26 +78,26 @@ class TaskTracerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
                         addingScheduledTask = false,
                         scheduledTaskTitle = "",
                         scheduledTaskDescription = "",
-                        scheduledTaskDateTime = ""
+                        scheduledTaskTime = ""
                     )
                 }
             }
-            is TaskTracerEvent.setDateTime -> {
+            is TaskTracerEvent.SetTime -> {
                 _state.update {
-                    it.copy(scheduledTaskDateTime = event.dateTime)
+                    it.copy(scheduledTaskTime = event.dateTime)
                 }
             }
-            is TaskTracerEvent.setDescription -> {
+            is TaskTracerEvent.SetDescription -> {
                 _state.update {
                     it.copy(scheduledTaskDescription = event.description)
                 }
             }
-            is TaskTracerEvent.setTitle -> {
+            is TaskTracerEvent.SetTitle -> {
                 _state.update {
                     it.copy(scheduledTaskTitle = event.title)
                 }
             }
-            is TaskTracerEvent.setSearchBarContent -> {
+            is TaskTracerEvent.SetSearchBarContent -> {
                 _searchBarContent.update {
                     event.searchBarContent
                 }

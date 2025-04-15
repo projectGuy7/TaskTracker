@@ -1,4 +1,7 @@
-package com.example.tasktracker
+package com.example.tasktracker.viewmodel
+
+import com.example.tasktracker.roomdatabase.ScheduledTask
+import java.time.LocalTime
 
 data class TaskTracerState (
     val scheduledTasksList : List<ScheduledTask> = emptyList(),
@@ -6,5 +9,5 @@ data class TaskTracerState (
     val addingScheduledTask : Boolean = false,
     val scheduledTaskTitle: String = "",
     val scheduledTaskDescription: String = "",
-    val scheduledTaskDateTime: String = "",
+    val scheduledTaskTime: String = ""
 )

@@ -1,13 +1,12 @@
-package com.example.tasktracker
+package com.example.tasktracker.roomdatabase
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.time.LocalDateTime
+import java.time.LocalTime
 
 @Entity()
 data class ScheduledTask(
     val title: String,
     val description: String,
-    val dueTime: String,
-    val creationTime: String,
+    val dueTime: LocalTime,
     @PrimaryKey(autoGenerate = true) val id: Int = 0
 )
