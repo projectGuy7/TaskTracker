@@ -1,9 +1,8 @@
 package com.example.tasktracker.viewmodel
 
 import com.example.tasktracker.roomdatabase.ScheduledTask
-import java.time.LocalTime
 
-data class TaskTracerState (
+data class TaskTrackerState (
     val scheduledTasksList : List<ScheduledTask> = emptyList(),
     val searchBarContent: String = "",
     val addingScheduledTask : Boolean = false,

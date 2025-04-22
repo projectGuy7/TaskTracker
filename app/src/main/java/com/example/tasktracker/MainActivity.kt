@@ -1,6 +1,9 @@
 package com.example.tasktracker
 
+import android.content.Intent
+import android.content.res.Resources
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -37,13 +40,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
+import com.example.tasktracker.alarm.ScheduledTaskAlarmHandler
 import com.example.tasktracker.composables.mainScreen.ScheduledTaskItem
 import com.example.tasktracker.roomdatabase.ScheduledTask
 import com.example.tasktracker.roomdatabase.ScheduledTaskDatabase
-import com.example.tasktracker.viewmodel.TaskTracerState
-import com.example.tasktracker.viewmodel.TaskTracerViewModel
+import com.example.tasktracker.viewmodel.TaskTrackerState
+import com.example.tasktracker.viewmodel.TaskTrackerViewModel
 import com.example.tasktracker.ui.theme.TaskTrackerTheme
-import com.example.tasktracker.viewmodel.TaskTracerEvent
+import com.example.tasktracker.viewmodel.TaskTrackerEvent
+import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,11 +66,11 @@ class MainActivity : ComponentActivity() {
         ).build()
     }
 
-    private val taskTracerViewModel by viewModels<TaskTracerViewModel> (
+    private val taskTrackerViewModel by viewModels<TaskTrackerViewModel> (
         factoryProducer = {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return TaskTracerViewModel(db.scheduledTaskDao()) as T
+                    return TaskTrackerViewModel(db.scheduledTaskDao()) as T
                 }
             }
         }
@@ -74,10 +79,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val scheduledTaskAlarmHandler = ScheduledTaskAlarmHandler(this)
+//        val intent = Intent().apply {
+//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//            action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+//        }
+//        startActivity(intent)
         setContent {
             TaskTrackerTheme {
-                val state by taskTracerViewModel.state.collectAsState()
-                MyApp(state = state, onEvent = taskTracerViewModel::onEvent)
+                scheduledTaskAlarmHandler.RequestPermission(Modifier)
+
+                val state by taskTrackerViewModel.state.collectAsState()
+                MyApp(state = state, onEvent = taskTrackerViewModel::onEvent)
             }
         }
     }
@@ -86,14 +99,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(
     modifier: Modifier = Modifier,
-    state: TaskTracerState,
-    onEvent: (TaskTracerEvent) -> Unit
+    state: TaskTrackerState,
+    onEvent: (TaskTrackerEvent) -> Unit
     ) {
     Scaffold(
         floatingActionButton = {
             if(!state.addingScheduledTask) {
                 FloatingActionButton(
-                    onClick = { onEvent(TaskTracerEvent.ShowAddingScheduledTaskDialog) }
+                    onClick = { onEvent(TaskTrackerEvent.ShowAddingScheduledTaskDialog) }
                 ) {
                     Icon(Icons.Filled.Add, "Add new contact")
                 }
@@ -113,7 +126,7 @@ fun MyApp(
                     value = state.scheduledTaskTitle,
                     modifier = Modifier.fillMaxWidth(),
                     onValueChange = {
-                        onEvent(TaskTracerEvent.SetTitle(it))
+                        onEvent(TaskTrackerEvent.SetTitle(it))
                     },
                     maxLines = 1
                 )
@@ -126,7 +139,7 @@ fun MyApp(
                     value = state.scheduledTaskDescription,
                     modifier = Modifier.fillMaxWidth(),
                     onValueChange = {
-                        onEvent(TaskTracerEvent.SetDescription(it))
+                        onEvent(TaskTrackerEvent.SetDescription(it))
                     },
                     maxLines = 3
                 )
@@ -139,14 +152,14 @@ fun MyApp(
                     value = state.scheduledTaskTime,
                     modifier = Modifier.fillMaxWidth(),
                     onValueChange = {
-                        onEvent(TaskTracerEvent.SetTime(it))
+                        onEvent(TaskTrackerEvent.SetTime(it))
                     },
                     maxLines = 1
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     modifier = Modifier.padding(10.dp).align(Alignment.CenterHorizontally),
-                    onClick = { onEvent(TaskTracerEvent.SaveScheduledTask) }
+                    onClick = { onEvent(TaskTrackerEvent.SaveScheduledTask) }
                 ) {
                     Text(
                         text = "Add Task",
@@ -161,7 +174,7 @@ fun MyApp(
                         value = state.searchBarContent,
                         modifier = Modifier.fillMaxWidth(),
                         onValueChange = {
-                            onEvent(TaskTracerEvent.SetSearchBarContent(it))
+                            onEvent(TaskTrackerEvent.SetSearchBarContent(it))
                         },
                         placeholder = {
                             Text("Task Title")
@@ -177,7 +190,7 @@ fun MyApp(
                             titleFontSize = integerResource(R.integer.titleFontSize).sp,
                             description = scheduledTask.description,
                             descriptionFontSize = integerResource(R.integer.descriptionFontSize).sp,
-                            time = scheduledTask.dueTime,
+                            time = scheduledTask.time,
                             timeFontSize = integerResource(R.integer.scheduledTaskTimeFontSize).sp
                         )
                     }
@@ -195,12 +208,12 @@ fun MyApp(
 @Composable
 fun MyAppPreview() {
     MyApp(
-        state =  TaskTracerState(
+        state =  TaskTrackerState(
             addingScheduledTask = true,
             scheduledTasksList = listOf(
-                ScheduledTask(title = "1st Title", description = "1st Description Longggggggggggggggggggg", dueTime = LocalTime.parse("12:20")),
-                ScheduledTask(title = "2nd Title", description = "2nd Description", dueTime = LocalTime.parse("13:20")) ,
-                ScheduledTask(title = "3rd Title", description = "3rd Description", dueTime = LocalTime.parse("14:20"))
+                ScheduledTask(title = "1st Title", description = "1st Description Longggggggggggggggggggg", time = LocalTime.parse("12:20")),
+                ScheduledTask(title = "2nd Title", description = "2nd Description", time = LocalTime.parse("13:20")) ,
+                ScheduledTask(title = "3rd Title", description = "3rd Description", time = LocalTime.parse("14:20"))
             )
         ),
         onEvent = {}

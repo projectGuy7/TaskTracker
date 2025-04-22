@@ -4,16 +4,17 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.example.tasktracker.R
+import com.example.tasktracker.roomdatabase.ScheduledTask
 import kotlin.random.Random
 
 class NotificationHandler(private val context: Context) {
     private val notificationManager = context.getSystemService(NotificationManager::class.java)
     private val notificationChannelID = "notification_channel_id"
 
-    fun showTaskNotification() {
+    fun showTaskNotification(scheduledTask: ScheduledTask) {
         val notification = NotificationCompat.Builder(context, notificationChannelID)
-            .setContentTitle("Simple Notification")
-            .setContentText("Message or text with notification")
+            .setContentTitle(scheduledTask.title)
+            .setContentText(scheduledTask.description)
             .setSmallIcon(R.drawable.notification_icon)
             .setPriority(NotificationManager.IMPORTANCE_HIGH)
             .setAutoCancel(true)

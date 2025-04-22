@@ -16,7 +16,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-class TaskTracerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
+class TaskTrackerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
     private val _searchBarContent = MutableStateFlow("")
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _scheduledTasks = _searchBarContent
@@ -24,36 +24,36 @@ class TaskTracerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
             dao.getScheduledTasksByTaskName(it)
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
-    private val _state = MutableStateFlow(TaskTracerState())
+    private val _state = MutableStateFlow(TaskTrackerState())
     val state = combine(_searchBarContent, _scheduledTasks, _state) { searchBarContent, scheduledTasks, state ->
         state.copy(
             searchBarContent = searchBarContent,
             scheduledTasksList = scheduledTasks
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), TaskTracerState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), TaskTrackerState())
 
-    fun onEvent(event: TaskTracerEvent) {
+    fun onEvent(event: TaskTrackerEvent) {
         when(event) {
-            TaskTracerEvent.HideAddingScheduledTaskDialog -> {
+            TaskTrackerEvent.HideAddingScheduledTaskDialog -> {
                 _state.update {
                     it.copy(addingScheduledTask = false)
                 }
             }
-            TaskTracerEvent.ShowAddingScheduledTaskDialog -> {
+            TaskTrackerEvent.ShowAddingScheduledTaskDialog -> {
                 _state.update {
                     it.copy(addingScheduledTask = true)
                 }
             }
-            TaskTracerEvent.SaveScheduledTask -> {
+            TaskTrackerEvent.SaveScheduledTask -> {
                 if(_state.value.run {
                     scheduledTaskTitle.isBlank() || scheduledTaskDescription.isBlank() || scheduledTaskTime.isBlank()
                 }) {
                     return;
                 }
 
-                val dueTime: LocalTime
+                val time: LocalTime
                 try {
-                    dueTime = LocalTime.parse(
+                    time = LocalTime.parse(
                         _state.value.scheduledTaskTime,
                         DateTimeFormatter.ofPattern("HH:mm")
                     )
@@ -65,7 +65,7 @@ class TaskTracerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
                     ScheduledTask(
                         title = scheduledTaskTitle,
                         description = scheduledTaskDescription,
-                        dueTime = dueTime
+                        time = time
                     )
                 }
 
@@ -82,22 +82,22 @@ class TaskTracerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
                     )
                 }
             }
-            is TaskTracerEvent.SetTime -> {
+            is TaskTrackerEvent.SetTime -> {
                 _state.update {
                     it.copy(scheduledTaskTime = event.dateTime)
                 }
             }
-            is TaskTracerEvent.SetDescription -> {
+            is TaskTrackerEvent.SetDescription -> {
                 _state.update {
                     it.copy(scheduledTaskDescription = event.description)
                 }
             }
-            is TaskTracerEvent.SetTitle -> {
+            is TaskTrackerEvent.SetTitle -> {
                 _state.update {
                     it.copy(scheduledTaskTitle = event.title)
                 }
             }
-            is TaskTracerEvent.SetSearchBarContent -> {
+            is TaskTrackerEvent.SetSearchBarContent -> {
                 _searchBarContent.update {
                     event.searchBarContent
                 }
