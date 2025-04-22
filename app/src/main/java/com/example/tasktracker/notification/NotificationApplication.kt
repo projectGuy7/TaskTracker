@@ -17,4 +17,6 @@ class NotificationApplication : Application() {
         // Setting up the channel
         notificationManager.createNotificationChannel(notificationChannel)
     }
+
+
 }
