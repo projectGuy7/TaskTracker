@@ -2,6 +2,7 @@ package com.example.tasktracker.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tasktracker.alarm.ScheduledTaskAlarmHandler
 import com.example.tasktracker.roomdatabase.ScheduledTask
 import com.example.tasktracker.roomdatabase.ScheduledTaskDao
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,8 +16,12 @@ import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import javax.inject.Inject
 
-class TaskTrackerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
+class TaskTrackerViewModel @Inject constructor(
+    val dao: ScheduledTaskDao,
+    val scheduledTaskAlarmHandler: ScheduledTaskAlarmHandler
+) : ViewModel() {
     private val _searchBarContent = MutableStateFlow("")
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _scheduledTasks = _searchBarContent
@@ -72,6 +77,7 @@ class TaskTrackerViewModel(val dao: ScheduledTaskDao) : ViewModel() {
                 viewModelScope.launch {
                     dao.insertNewScheduledTask(scheduledTask)
                 }
+                scheduledTaskAlarmHandler.setExactAlarm(scheduledTask)
 
                 _state.update {
                     it.copy(

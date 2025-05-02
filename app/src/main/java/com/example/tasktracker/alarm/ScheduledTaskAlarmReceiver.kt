@@ -9,14 +9,19 @@ import androidx.annotation.RequiresApi
 import com.example.tasktracker.notification.NotificationHandler
 import com.example.tasktracker.roomdatabase.ScheduledTask
 import com.example.tasktracker.viewmodel.TaskTrackerState
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalTime
+import javax.inject.Inject
 
-class ScheduledTaskAlarmReceiver(private val notificationHandler: NotificationHandler): BroadcastReceiver() {
+@AndroidEntryPoint
+class ScheduledTaskAlarmReceiver(): BroadcastReceiver() {
+    @Inject
+    lateinit var notificationHandler: NotificationHandler
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -31,6 +36,7 @@ class ScheduledTaskAlarmReceiver(private val notificationHandler: NotificationHa
                 handleIntent(intent)
             }
         }
+
     }
 
     private suspend fun handleIntent(intent: Intent?): Unit? {

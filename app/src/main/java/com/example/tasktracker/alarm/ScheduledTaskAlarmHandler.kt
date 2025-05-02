@@ -17,8 +17,9 @@ import androidx.core.app.AlarmManagerCompat
 import com.example.tasktracker.roomdatabase.ScheduledTask
 import java.time.LocalDate
 import java.time.ZonedDateTime
+import javax.inject.Inject
 
-class ScheduledTaskAlarmHandler(private val context: Context) {
+class ScheduledTaskAlarmHandler @Inject constructor(private val context: Context) {
     private fun getAlarmManager(): AlarmManager? = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
 
     private fun permissionGranted() = getAlarmManager()?.canScheduleExactAlarms()?:false

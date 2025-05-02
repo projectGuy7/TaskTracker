@@ -5,9 +5,10 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.example.tasktracker.R
 import com.example.tasktracker.roomdatabase.ScheduledTask
+import javax.inject.Inject
 import kotlin.random.Random
 
-class NotificationHandler(private val context: Context) {
+class NotificationHandler @Inject constructor(private val context: Context) {
     private val notificationManager = context.getSystemService(NotificationManager::class.java)
     private val notificationChannelID = "notification_channel_id"
 

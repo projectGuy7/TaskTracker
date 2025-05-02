@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -11,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.tasktracker"
-        minSdk = 33
+        minSdk = 31
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -51,6 +52,12 @@ dependencies {
 
     // Notification permission
     implementation("com.google.accompanist:accompanist-permissions:0.31.1-alpha")
+
+    //Hilt
+    implementation("com.google.dagger:hilt-android:2.56.1")
+    ksp("com.google.dagger:hilt-android-compiler:2.56.1")
+    ksp("androidx.hilt:hilt-compiler:1.0.0")
+    implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

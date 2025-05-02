@@ -1,12 +1,15 @@
 package com.example.tasktracker
 
+import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,55 +52,68 @@ import com.example.tasktracker.viewmodel.TaskTrackerViewModel
 import com.example.tasktracker.ui.theme.TaskTrackerTheme
 import com.example.tasktracker.viewmodel.TaskTrackerEvent
 import com.google.accompanist.permissions.rememberPermissionState
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalTime
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val db by lazy {
-        Room.databaseBuilder(
-            applicationContext,
-            ScheduledTaskDatabase::class.java,
-            "Scheduled Task database"
-        ).build()
-    }
+    @Inject
+    lateinit var db: ScheduledTaskDatabase
 
-    private val taskTrackerViewModel by viewModels<TaskTrackerViewModel> (
-        factoryProducer = {
-            object : ViewModelProvider.Factory {
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return TaskTrackerViewModel(db.scheduledTaskDao()) as T
-                }
-            }
-        }
-    )
+    val taskTrackerViewModel: TaskTrackerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val scheduledTaskAlarmHandler = ScheduledTaskAlarmHandler(this)
-//        val intent = Intent().apply {
-//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//            action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
-//        }
-//        startActivity(intent)
         setContent {
             TaskTrackerTheme {
-                scheduledTaskAlarmHandler.RequestPermission(Modifier)
+                rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) {
+
+                }.launch(
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                )
+                rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) {
+
+                }.launch(
+                    android.Manifest.permission.RECEIVE_BOOT_COMPLETED
+                )
+                rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) {
+
+                }.launch(
+                    android.Manifest.permission.SCHEDULE_EXACT_ALARM
+                )
+                rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) {
+
+                }.launch(
+                    android.Manifest.permission.USE_EXACT_ALARM
+                )
 
                 val state by taskTrackerViewModel.state.collectAsState()
-                MyApp(state = state, onEvent = taskTrackerViewModel::onEvent)
+                App(state = state, onEvent = taskTrackerViewModel::onEvent)
             }
         }
     }
 }
 
 @Composable
-fun MyApp(
+fun App(
     modifier: Modifier = Modifier,
     state: TaskTrackerState,
     onEvent: (TaskTrackerEvent) -> Unit
@@ -206,8 +222,8 @@ fun MyApp(
     showBackground = true
 )
 @Composable
-fun MyAppPreview() {
-    MyApp(
+fun AppPreview() {
+    App(
         state =  TaskTrackerState(
             addingScheduledTask = true,
             scheduledTasksList = listOf(
