@@ -10,7 +10,7 @@ import kotlin.random.Random
 
 class NotificationHandler @Inject constructor(private val context: Context) {
     private val notificationManager = context.getSystemService(NotificationManager::class.java)
-    private val notificationChannelID = "notification_channel_id"
+    private val notificationChannelID = "task_notification"
 
     fun showTaskNotification(scheduledTask: ScheduledTask) {
         val notification = NotificationCompat.Builder(context, notificationChannelID)
@@ -20,7 +20,6 @@ class NotificationHandler @Inject constructor(private val context: Context) {
             .setPriority(NotificationManager.IMPORTANCE_HIGH)
             .setAutoCancel(true)
             .build()
-
         notificationManager.notify(Random.nextInt(), notification)
     }
 }

@@ -29,7 +29,7 @@ class ScheduledTaskAlarmHandler @Inject constructor(private val context: Context
             action = ALARM_ACTION
             putExtra("Title", scheduledTask.title)
             putExtra("Description", scheduledTask.description)
-            putExtra("Time", scheduledTask.time)
+            putExtra("Time", scheduledTask.time.toString())
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -44,50 +44,11 @@ class ScheduledTaskAlarmHandler @Inject constructor(private val context: Context
                 AlarmManagerCompat.setExactAndAllowWhileIdle(
                     it,
                     type,
-                    scheduledTask.time.toEpochSecond(LocalDate.now(), ZonedDateTime.now().offset),
+                    ZonedDateTime.now().toLocalDate().atTime(scheduledTask.time).toInstant(ZonedDateTime.now().offset).toEpochMilli(),
+                    //scheduledTask.time.toEpochSecond(LocalDate.now(), ZonedDateTime.now().offset),
                     pendingIntent
                 )
             }
         }
     }
-
-    /*
-    TODO: Put in separate class
-    @Composable
-    fun RequestPermission(modifier: Modifier = Modifier) {
-        val openDialog  = rememberSaveable { mutableStateOf(true) }
-        if(!permissionGranted() && openDialog.value) {
-            AlertDialog(
-                title = {
-                    Text("Notification Permission")
-                },
-                text = {
-                    Text("We need permission to send notifications about upcoming tasks")
-                },
-                dismissButton = {
-                    Button(onClick = {
-                            openDialog.value = false
-                        }) {
-                        Text("Dismiss")
-                    }
-                },
-                onDismissRequest = {
-                    openDialog.value = false
-                },
-                confirmButton = {
-                    Button(onClick = {
-                        val intent = Intent().apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
-                        }
-                        context.startActivity(intent)
-                        openDialog.value = false
-                    }) {
-                        Text("OK")
-                    }
-                },
-            )
-        }
-    }
-     */
 }

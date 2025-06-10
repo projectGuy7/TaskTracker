@@ -3,7 +3,6 @@ package com.example.tasktracker.hilt
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
-import com.example.tasktracker.MyApp
 import com.example.tasktracker.roomdatabase.ScheduledTaskDao
 import com.example.tasktracker.roomdatabase.ScheduledTaskDatabase
 import dagger.Module
@@ -35,4 +34,6 @@ class AppModule() {
     fun provideDao(database: ScheduledTaskDatabase): ScheduledTaskDao {
         return database.scheduledTaskDao()
     }
+
+
 }

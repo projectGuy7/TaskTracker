@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.tasktracker.alarm.ScheduledTaskAlarmHandler
 import com.example.tasktracker.roomdatabase.ScheduledTask
 import com.example.tasktracker.roomdatabase.ScheduledTaskDao
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,6 +19,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import javax.inject.Inject
 
+@HiltViewModel
 class TaskTrackerViewModel @Inject constructor(
     val dao: ScheduledTaskDao,
     val scheduledTaskAlarmHandler: ScheduledTaskAlarmHandler

@@ -3,9 +3,8 @@ package com.example.tasktracker.notification
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import com.example.tasktracker.MyApp
 
-class NotificationApplication : MyApp() {
+open class NotificationApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         val notificationChannel = NotificationChannel(
@@ -17,7 +16,6 @@ class NotificationApplication : MyApp() {
 
         // Setting up the channel
         notificationManager.createNotificationChannel(notificationChannel)
+        println("AYO")
     }
-
-
 }

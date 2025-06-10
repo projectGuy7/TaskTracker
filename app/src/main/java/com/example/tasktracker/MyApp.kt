@@ -1,7 +1,7 @@
 package com.example.tasktracker
 
-import android.app.Application
+import com.example.tasktracker.notification.NotificationApplication
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-open class MyApp: Application()
+open class MyApp: NotificationApplication()

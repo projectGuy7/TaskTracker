@@ -3,6 +3,7 @@ package com.example.tasktracker
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
@@ -11,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -51,6 +54,7 @@ import com.example.tasktracker.viewmodel.TaskTrackerState
 import com.example.tasktracker.viewmodel.TaskTrackerViewModel
 import com.example.tasktracker.ui.theme.TaskTrackerTheme
 import com.example.tasktracker.viewmodel.TaskTrackerEvent
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
@@ -71,39 +75,24 @@ class MainActivity : ComponentActivity() {
 
     val taskTrackerViewModel: TaskTrackerViewModel by viewModels()
 
+    private val requestPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> }
+
+    @OptIn(ExperimentalPermissionsApi::class)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
+//        requestPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+//        requestPermission.launch(android.Manifest.permission.USE_EXACT_ALARM)
+//        requestPermission.launch(android.Manifest.permission.WAKE_LOCK)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             TaskTrackerTheme {
-                rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission()
-                ) {
-
-                }.launch(
-                    android.Manifest.permission.POST_NOTIFICATIONS
-                )
-                rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission()
-                ) {
-
-                }.launch(
-                    android.Manifest.permission.RECEIVE_BOOT_COMPLETED
-                )
-                rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission()
-                ) {
-
-                }.launch(
-                    android.Manifest.permission.SCHEDULE_EXACT_ALARM
-                )
-                rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission()
-                ) {
-
-                }.launch(
-                    android.Manifest.permission.USE_EXACT_ALARM
-                )
+                val postNotificationPermission = rememberPermissionState(permission = android.Manifest.permission.POST_NOTIFICATIONS)
+                LaunchedEffect(key1 = true) {
+                    postNotificationPermission.launchPermissionRequest()
+                }
 
                 val state by taskTrackerViewModel.state.collectAsState()
                 App(state = state, onEvent = taskTrackerViewModel::onEvent)

@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -46,7 +47,10 @@ class ScheduledTaskAlarmReceiver(): BroadcastReceiver() {
                     ScheduledTask(
                         intent.getStringExtra("Title")!!,
                         intent.getStringExtra("Description")!!,
-                        intent.getSerializableExtra("Time", LocalTime::class.java)!!
+                        LocalTime.parse(
+                            intent.getStringExtra("Time"),
+                            DateTimeFormatter.ofPattern("HH:mm")
+                        )
                     )
                 )
             }
