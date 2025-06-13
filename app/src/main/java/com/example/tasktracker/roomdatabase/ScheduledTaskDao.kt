@@ -1,6 +1,7 @@
 package com.example.tasktracker.roomdatabase
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
@@ -17,4 +18,7 @@ interface ScheduledTaskDao {
 
     @Insert
     suspend fun insertNewScheduledTask(scheduledTask: ScheduledTask)
+
+    @Query("DELETE FROM scheduledtask WHERE id = :scheduledTaskId")
+    suspend fun deleteScheduledTask(scheduledTaskId: Int)
 }

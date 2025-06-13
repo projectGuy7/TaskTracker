@@ -8,5 +8,6 @@ data class TaskTrackerState (
     val addingScheduledTask : Boolean = false,
     val scheduledTaskTitle: String = "",
     val scheduledTaskDescription: String = "",
-    val scheduledTaskTime: String = ""
+    val scheduledTaskTime: String = "",
+    val inEditMode: Boolean = false
 )

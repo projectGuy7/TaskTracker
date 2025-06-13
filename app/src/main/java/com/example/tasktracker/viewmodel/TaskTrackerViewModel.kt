@@ -110,6 +110,16 @@ class TaskTrackerViewModel @Inject constructor(
                     event.searchBarContent
                 }
             }
+            is TaskTrackerEvent.DeleteScheduledTask -> {
+                viewModelScope.launch {
+                    dao.deleteScheduledTask(event.scheduledTaskId)
+                }
+            }
+            TaskTrackerEvent.PressEditMode -> {
+                _state.update {
+                    it.copy(inEditMode = !_state.value.inEditMode)
+                }
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -23,11 +24,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -133,7 +139,7 @@ fun App(
                     onValueChange = {
                         onEvent(TaskTrackerEvent.SetTitle(it))
                     },
-                    maxLines = 1
+                    singleLine = true
                 )
                 Text(
                     modifier = Modifier.padding(top = 5.dp),
@@ -146,7 +152,7 @@ fun App(
                     onValueChange = {
                         onEvent(TaskTrackerEvent.SetDescription(it))
                     },
-                    maxLines = 3
+                    singleLine = true
                 )
                 Text(
                     modifier = Modifier.padding(top = 5.dp),
@@ -159,7 +165,7 @@ fun App(
                     onValueChange = {
                         onEvent(TaskTrackerEvent.SetTime(it))
                     },
-                    maxLines = 1
+                    singleLine = true
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
@@ -177,7 +183,7 @@ fun App(
                 Row() {
                     TextField(
                         value = state.searchBarContent,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().weight(1f),
                         onValueChange = {
                             onEvent(TaskTrackerEvent.SetSearchBarContent(it))
                         },
@@ -185,19 +191,43 @@ fun App(
                             Text("Task Title")
                         }
                     )
-
+                    IconButton(
+                        onClick = {
+                            onEvent(TaskTrackerEvent.PressEditMode)
+                        },
+                        content = {
+                            if(state.inEditMode) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Switch back")
+                            } else {
+                                Icon(Icons.Default.Create, "Switch to Edit Mode")
+                            }
+                        }
+                    )
                 }
                 LazyColumn() {
                     items(state.scheduledTasksList) { scheduledTask ->
-                        ScheduledTaskItem(
-                            modifier = Modifier.padding(10.dp),
-                            title = scheduledTask.title,
-                            titleFontSize = integerResource(R.integer.titleFontSize).sp,
-                            description = scheduledTask.description,
-                            descriptionFontSize = integerResource(R.integer.descriptionFontSize).sp,
-                            time = scheduledTask.time,
-                            timeFontSize = integerResource(R.integer.scheduledTaskTimeFontSize).sp
-                        )
+                        Row() {
+                            ScheduledTaskItem(
+                                modifier = Modifier.fillMaxWidth().padding(10.dp).weight(1f),
+                                title = scheduledTask.title,
+                                titleFontSize = integerResource(R.integer.titleFontSize).sp,
+                                description = scheduledTask.description,
+                                descriptionFontSize = integerResource(R.integer.descriptionFontSize).sp,
+                                time = scheduledTask.time,
+                                timeFontSize = integerResource(R.integer.scheduledTaskTimeFontSize).sp
+                            )
+                            if(state.inEditMode) {
+                                Log.i("inEditMode", "Hit Recomposition")
+                                IconButton(
+                                    onClick = {
+                                        onEvent(TaskTrackerEvent.DeleteScheduledTask(scheduledTask.id))
+                                    },
+                                    content = {
+                                        Icon(Icons.Default.Delete, "Delete")
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }

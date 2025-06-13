@@ -45,7 +45,6 @@ class ScheduledTaskAlarmHandler @Inject constructor(private val context: Context
                     it,
                     type,
                     ZonedDateTime.now().toLocalDate().atTime(scheduledTask.time).toInstant(ZonedDateTime.now().offset).toEpochMilli(),
-                    //scheduledTask.time.toEpochSecond(LocalDate.now(), ZonedDateTime.now().offset),
                     pendingIntent
                 )
             }
